@@ -1,119 +1,108 @@
--- --- MATHS HUB | GUI DE AUTENTICAÇÃO ATUALIZADA ---
-local HttpService = game:GetService("HttpService")
+-- MATHS HUB - GUI DE AUTENTICAÇÃO
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local KeyInput = Instance.new("TextBox")
+local AuthButton = Instance.new("TextButton")
+local StatusLabel = Instance.new("TextLabel")
 
-local function Notificar(titulo, msg)
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = titulo,
-        Text = msg,
-        Duration = 5
-    })
-end
+-- Configuração Visual Básica
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "MathsAuthSystem"
 
--- Criando a Interface
-local sg = Instance.new("ScreenGui", gethui and gethui() or game.CoreGui)
-sg.Name = "MathsAuth"
-sg.ResetOnSpawn = false
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -125, 0.5, -75)
+MainFrame.Size = UDim2.new(0, 250, 0, 150)
+MainFrame.Active = true
+MainFrame.Draggable = true
 
-local f = Instance.new("Frame", sg)
-f.Size = UDim2.new(0, 280, 0, 180)
-f.Position = UDim2.new(0.5, -140, 0.5, -90)
-f.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-f.BorderSizePixel = 0
-f.Active = true
-f.Draggable = true -- Permite mover a GUI
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "MATHS HUB AUTH"
+Title.TextColor3 = Color3.fromRGB(0, 255, 136)
+Title.TextSize = 14
 
-local corner = Instance.new("UICorner", f)
-corner.CornerRadius = UDim.new(0, 8)
+KeyInput.Name = "KeyInput"
+KeyInput.Parent = MainFrame
+KeyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+KeyInput.BorderSizePixel = 0
+KeyInput.Position = UDim2.new(0.1, 0, 0.3, 0)
+KeyInput.Size = UDim2.new(0.8, 0, 0, 30)
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.PlaceholderText = "Insira sua Key aqui..."
+KeyInput.Text = ""
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextSize = 12
 
-local stroke = Instance.new("UIStroke", f)
-stroke.Color = Color3.fromRGB(0, 255, 136)
-stroke.Thickness = 1.8
+AuthButton.Name = "AuthButton"
+AuthButton.Parent = MainFrame
+AuthButton.BackgroundColor3 = Color3.fromRGB(0, 255, 136)
+AuthButton.BorderSizePixel = 0
+AuthButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+AuthButton.Size = UDim2.new(0.8, 0, 0, 35)
+AuthButton.Font = Enum.Font.GothamBold
+AuthButton.Text = "AUTENTICAR"
+AuthButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+AuthButton.TextSize = 14
 
-local title = Instance.new("TextLabel", f)
-title.Text = "MATHS HUB SECURITY"
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.fromRGB(0, 255, 136)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 14
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Position = UDim2.new(0, 0, 0.85, 0)
+StatusLabel.Size = UDim2.new(1, 0, 0, 20)
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Text = "Aguardando login..."
+StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+StatusLabel.TextSize = 10
 
-local i = Instance.new("TextBox", f)
-i.PlaceholderText = "INSIRA A SUA KEY AQUI"
-i.Size = UDim2.new(0.85, 0, 0, 40)
-i.Position = UDim2.new(0.075, 0, 0.3, 0)
-i.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-i.TextColor3 = Color3.new(1, 1, 1)
-i.Font = Enum.Font.Gotham
-i.TextSize = 12
-i.Text = ""
+-- ========================================================
+-- LÓGICA DE AUTENTICAÇÃO (O QUE FAZ O BOTÃO FUNCIONAR)
+-- ========================================================
 
-local iCorner = Instance.new("UICorner", i)
-
-local b = Instance.new("TextButton", f)
-b.Text = "AUTENTICAR"
-b.Size = UDim2.new(0.85, 0, 0, 40)
-b.Position = UDim2.new(0.075, 0, 0.65, 0)
-b.BackgroundColor3 = Color3.fromRGB(0, 255, 136)
-b.Font = Enum.Font.GothamBold
-b.TextColor3 = Color3.fromRGB(0, 0, 0)
-b.TextSize = 14
-
-local bCorner = Instance.new("UICorner", b)
-
--- Lógica do Botão
-b.MouseButton1Click:Connect(function()
-    local inputKey = i.Text:gsub("%s+", "")
+AuthButton.MouseButton1Click:Connect(function()
+    local key = KeyInput.Text
     
-    if inputKey == "" then
-        Notificar("AVISO", "Por favor, cole uma key.")
+    if key == "" then
+        StatusLabel.Text = "Por favor, insira uma key!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
         return
     end
 
-    b.Text = "A VERIFICAR..."
-    b.Active = false
+    StatusLabel.Text = "Verificando..."
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
 
-    -- Chamar a função global definida no Loader
+    -- Chama a função global definida no seu LOADER
     if _G.ValidarUniversal then
-        local ok, response, msg = _G.ValidarUniversal(inputKey)
+        local sucesso, resultado = _G.ValidarUniversal(key)
         
-        if ok then
-            Notificar("SUCESSO", "Acesso concedido! Carregando...")
-            sg:Destroy()
+        if sucesso then
+            StatusLabel.Text = "Acesso concedido! Carregando..."
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
             
-            -- A 'response' vinda da Worker é o código LUA puro
-            local s, err = pcall(function()
-                loadstring(response)()
-            end)
+            -- Espera um pouco para o usuário ver o sucesso e fecha a GUI de login
+            task.wait(1)
+            ScreenGui:Destroy()
             
-            if not s then
-                warn("Erro ao carregar script principal: " .. tostring(err))
+            -- EXECUTA O SCRIPT QUE VEIO DO BANCO DE DADOS
+            local carregar, erro = loadstring(resultado)
+            if carregar then
+                carregar()
+            else
+                warn("Erro ao carregar script do banco: " .. tostring(erro))
             end
         else
-            Notificar("FALHA", response) -- 'response' aqui é a mensagem de erro
-            b.Text = "AUTENTICAR"
-            b.Active = true
+            -- Exibe o erro retornado pela Worker (Ex: Key Invalida, Mapa Errado)
+            StatusLabel.Text = tostring(resultado)
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
     else
-        Notificar("ERRO CRÍTICO", "Loader não inicializado corretamente.")
-        b.Text = "ERRO"
-    end
-end)
-
--- Dentro do seu visual.lua no GitHub:
-BotaoLogin.MouseButton1Click:Connect(function()
-    local keyInserida = TextoDaKey.Text -- Altere para o nome da sua caixa de texto
-    
-    -- Chama a função global que você definiu no Loader
-    local status, resultado = _G.ValidarUniversal(keyInserida)
-    
-    if status then
-        -- Se a key for válida, resultado terá o código do script
-        print("Acesso concedido!")
-        loadstring(resultado)() 
-    else
-        -- Se falhar, resultado terá a mensagem de erro (Ex: "Key Invalida" ou "Mapa Errado")
-        warn("Erro: " .. tostring(resultado))
-        -- Opcional: Mostrar o erro na tela para o usuário
-        MensagemErroStatus.Text = resultado 
+        StatusLabel.Text = "Erro crítico: Loader não encontrado!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
