@@ -98,3 +98,22 @@ b.MouseButton1Click:Connect(function()
         b.Text = "ERRO"
     end
 end)
+
+-- Dentro do seu visual.lua no GitHub:
+BotaoLogin.MouseButton1Click:Connect(function()
+    local keyInserida = TextoDaKey.Text -- Altere para o nome da sua caixa de texto
+    
+    -- Chama a função global que você definiu no Loader
+    local status, resultado = _G.ValidarUniversal(keyInserida)
+    
+    if status then
+        -- Se a key for válida, resultado terá o código do script
+        print("Acesso concedido!")
+        loadstring(resultado)() 
+    else
+        -- Se falhar, resultado terá a mensagem de erro (Ex: "Key Invalida" ou "Mapa Errado")
+        warn("Erro: " .. tostring(resultado))
+        -- Opcional: Mostrar o erro na tela para o usuário
+        MensagemErroStatus.Text = resultado 
+    end
+end)
