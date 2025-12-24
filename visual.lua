@@ -1,108 +1,86 @@
--- MATHS HUB - GUI DE AUTENTICAÇÃO
+-- MATHS HUB - GUI FIX
 local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local KeyInput = Instance.new("TextBox")
-local AuthButton = Instance.new("TextButton")
-local StatusLabel = Instance.new("TextLabel")
-
--- Configuração Visual Básica
-ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "MathsAuthSystem"
+ScreenGui.Parent = game.CoreGui
 
+local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Size = UDim2.new(0, 260, 0, 160)
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -80)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.5, -125, 0.5, -75)
-MainFrame.Size = UDim2.new(0, 250, 0, 150)
-MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-Title.Name = "Title"
-Title.Parent = MainFrame
-Title.BackgroundTransparency = 1
+-- Título
+local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Font = Enum.Font.GothamBold
-Title.Text = "MATHS HUB AUTH"
+Title.Text = "MATHS HUB SECURITY"
 Title.TextColor3 = Color3.fromRGB(0, 255, 136)
-Title.TextSize = 14
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
 
+-- Caixa de Entrada
+local KeyInput = Instance.new("TextBox")
 KeyInput.Name = "KeyInput"
-KeyInput.Parent = MainFrame
-KeyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-KeyInput.BorderSizePixel = 0
-KeyInput.Position = UDim2.new(0.1, 0, 0.3, 0)
 KeyInput.Size = UDim2.new(0.8, 0, 0, 30)
-KeyInput.Font = Enum.Font.Gotham
-KeyInput.PlaceholderText = "Insira sua Key aqui..."
+KeyInput.Position = UDim2.new(0.1, 0, 0.35, 0)
+KeyInput.PlaceholderText = "INSIRA A SUA KEY AQUI"
 KeyInput.Text = ""
+KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyInput.TextSize = 12
+KeyInput.Parent = MainFrame
 
+-- BOTÃO DE AUTENTICAR (Onde dava o erro)
+local AuthButton = Instance.new("TextButton")
 AuthButton.Name = "AuthButton"
-AuthButton.Parent = MainFrame
-AuthButton.BackgroundColor3 = Color3.fromRGB(0, 255, 136)
-AuthButton.BorderSizePixel = 0
-AuthButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-AuthButton.Size = UDim2.new(0.8, 0, 0, 35)
-AuthButton.Font = Enum.Font.GothamBold
+AuthButton.Size = UDim2.new(0.8, 0, 0, 40)
+AuthButton.Position = UDim2.new(0.1, 0, 0.65, 0)
 AuthButton.Text = "AUTENTICAR"
-AuthButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-AuthButton.TextSize = 14
+AuthButton.BackgroundColor3 = Color3.fromRGB(0, 120, 70)
+AuthButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AuthButton.Font = Enum.Font.GothamBold
+AuthButton.Parent = MainFrame
 
-StatusLabel.Name = "StatusLabel"
-StatusLabel.Parent = MainFrame
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0.85, 0)
-StatusLabel.Size = UDim2.new(1, 0, 0, 20)
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.Text = "Aguardando login..."
-StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-StatusLabel.TextSize = 10
+-- Status de Erro
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, 0, 0, 20)
+Status.Position = UDim2.new(0, 0, 0.9, 0)
+Status.Text = ""
+Status.BackgroundTransparency = 1
+Status.TextColor3 = Color3.fromRGB(255, 0, 0)
+Status.Font = Enum.Font.Gotham
+Status.Parent = MainFrame
 
--- ========================================================
--- LÓGICA DE AUTENTICAÇÃO (O QUE FAZ O BOTÃO FUNCIONAR)
--- ========================================================
-
+-- Lógica de Autenticação
 AuthButton.MouseButton1Click:Connect(function()
     local key = KeyInput.Text
-    
-    if key == "" then
-        StatusLabel.Text = "Por favor, insira uma key!"
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
-        return
+    if key == "" then 
+        Status.Text = "Insira uma key!" 
+        return 
     end
 
-    StatusLabel.Text = "Verificando..."
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    Status.Text = "Verificando..."
+    Status.TextColor3 = Color3.fromRGB(255, 255, 0)
 
-    -- Chama a função global definida no seu LOADER
+    -- Verifica se a função do Loader está pronta
     if _G.ValidarUniversal then
         local sucesso, resultado = _G.ValidarUniversal(key)
         
         if sucesso then
-            StatusLabel.Text = "Acesso concedido! Carregando..."
-            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-            
-            -- Espera um pouco para o usuário ver o sucesso e fecha a GUI de login
-            task.wait(1)
+            Status.Text = "Sucesso! Carregando..."
+            Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+            task.wait(0.5)
             ScreenGui:Destroy()
             
-            -- EXECUTA O SCRIPT QUE VEIO DO BANCO DE DADOS
-            local carregar, erro = loadstring(resultado)
-            if carregar then
-                carregar()
-            else
-                warn("Erro ao carregar script do banco: " .. tostring(erro))
-            end
+            -- Executa o script que vem da Worker
+            local func, err = loadstring(resultado)
+            if func then func() else warn("Erro no script: "..tostring(err)) end
         else
-            -- Exibe o erro retornado pela Worker (Ex: Key Invalida, Mapa Errado)
-            StatusLabel.Text = tostring(resultado)
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+            Status.Text = tostring(resultado) -- Mostra "Mapa Incorreto" ou "Key Invalida"
+            Status.TextColor3 = Color3.fromRGB(255, 0, 0)
         end
     else
-        StatusLabel.Text = "Erro crítico: Loader não encontrado!"
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        Status.Text = "Erro: Loader nao inicializado!"
     end
 end)
